@@ -1,7 +1,23 @@
+import java.sql.SQLException;
 import java.util.*;
 
 public class DataProcessing {
 
+    private static boolean connectToDB = false; //是否连接到数据库
+
+    /**
+     * 数据库初始化
+     */
+    @SuppressWarnings("unused")
+    public static void Init() {
+        // connect to database
+
+        // update database connection status
+        connectToDB = Math.random() > 0.2;
+
+    }
+
+    @SuppressWarnings("WeakerAccess")
     static Hashtable<String, User> users;
 
     static {
@@ -17,7 +33,16 @@ public class DataProcessing {
      * @param name 用户姓名
      * @return 返回姓名为name的用户
      */
-    public static User searchUser(String name) {
+    @SuppressWarnings("WeakerAccess")
+    public static User searchUser(String name) throws SQLException {
+        if (!connectToDB) {
+            throw new SQLException("Not Connected to Database");
+        }
+        double ranValue = Math.random();
+        if (ranValue > 0.5) {
+            throw new SQLException("Error in executing Query");
+        }
+
         if (users.containsKey(name)) {
             return users.get(name);
         }
@@ -31,11 +56,21 @@ public class DataProcessing {
      * @param password 用户密码
      * @return 如果找到了用户名为name, 密码为password的用户，则返回该用户，否则返回null
      */
-    public static User search(String name, String password) {
+    @SuppressWarnings("WeakerAccess")
+    public static User search(String name, String password) throws SQLException {
+        if (!connectToDB) {
+            throw new SQLException("Not Connected to Database");
+        }
+        double ranValue = Math.random();
+        if (ranValue > 0.5) {
+            throw new SQLException("Error in executing Query");
+        }
+
         if (users.containsKey(name)) {
             User temp = users.get(name);
-            if ((temp.getPassword()).equals(password))
+            if ((temp.getPassword()).equals(password)) {
                 return temp;
+            }
         }
         return null;
     }
@@ -45,10 +80,18 @@ public class DataProcessing {
      *
      * @return 返回Hashtable中存储的所有用户信息
      */
-    public static Enumeration<User> getAllUser() {
+    @SuppressWarnings("WeakerAccess")
+    public static Enumeration<User> getAllUser() throws SQLException {
+        if (!connectToDB) {
+            throw new SQLException("Not Connected to Database");
+        }
 
-        final Enumeration<User> e = users.elements();
-        return e;
+        double ranValue = Math.random();
+        if (ranValue > 0.5) {
+            throw new SQLException("Error in executing Query");
+        }
+
+        return users.elements();
     }
 
     /**
@@ -59,17 +102,17 @@ public class DataProcessing {
      * @param role     用户身份
      * @return 返回是否更新成功
      */
-    public static boolean update(String name, String password, String role) {
-        User user;
+    @SuppressWarnings("WeakerAccess")
+    public static boolean update(String name, String password, String role) throws SQLException {
+        if (!connectToDB)
+            throw new SQLException("Not Connected to Database");
+
+        double ranValue = Math.random();
+        if (ranValue > 0.5)
+            throw new SQLException("Error in executing Update");
+
         if (users.containsKey(name)) {
-            if (role.equalsIgnoreCase("administrator"))
-                user = new Administrator(name, password, role);
-            else if (role.equalsIgnoreCase("operator"))
-                user = new Operator(name, password, role);
-            else
-                user = new Browser(name, password, role);
-            users.put(name, user);
-            return true;
+            return insertUser(name, password, role);
         } else
             return false;
     }
@@ -82,20 +125,41 @@ public class DataProcessing {
      * @param role     用户身份
      * @return 是否插入成功
      */
-    public static boolean insert(String name, String password, String role) {
-        User user;
+    @SuppressWarnings("WeakerAccess")
+    public static boolean insert(String name, String password, String role) throws SQLException {
+
+        if (!connectToDB)
+            throw new SQLException("Not Connected to Database");
+
+        double ranValue = Math.random();
+        if (ranValue > 0.5)
+            throw new SQLException("Error in executing Insert");
+
         if (users.containsKey(name))
             return false;
         else {
-            if (role.equalsIgnoreCase("administrator"))
-                user = new Administrator(name, password, role);
-            else if (role.equalsIgnoreCase("operator"))
-                user = new Operator(name, password, role);
-            else
-                user = new Browser(name, password, role);
-            users.put(name, user);
-            return true;
+            return insertUser(name, password, role);
         }
+    }
+
+    /**
+     * 根据用户名信息来进行对用户信息的插入或更新
+     * @param name 用户姓名
+     * @param password 用户密码
+     * @param role 用户身份
+     * @return 返回是否插入或更新成功
+     */
+    private static boolean insertUser(String name, String password, String role) {
+        User user;
+        if (role.equalsIgnoreCase("administrator")) {
+            user = new Administrator(name, password, role);
+        } else if (role.equalsIgnoreCase("operator")) {
+            user = new Operator(name, password, role);
+        } else {
+            user = new Browser(name, password, role);
+        }
+        users.put(name, user);
+        return true;
     }
 
     /**
@@ -104,14 +168,40 @@ public class DataProcessing {
      * @param name 用户姓名
      * @return 是否删除成功
      */
-    public static boolean delete(String name) {
+    @SuppressWarnings("WeakerAccess")
+    public static boolean delete(String name) throws SQLException {
+        if (!connectToDB)
+            throw new SQLException("Not Connected to Database");
+
+        double ranValue = Math.random();
+        if (ranValue > 0.5)
+            throw new SQLException("Error in excecuting Delete");
 
         if (users.containsKey(name)) {
             users.remove(name);
             return true;
-        } else
+        } else {
             return false;
+        }
 
+    }
+
+    /**
+     * 从数据库断开连接
+     */
+    @SuppressWarnings("unused")
+    public void disconnectFromDB() {
+        if (connectToDB) {
+            // close Statement and Connection
+            try {
+                if (Math.random() > 0.5)
+                    throw new SQLException("Error in disconnecting DB");
+            } catch (SQLException sqlException) {
+                sqlException.printStackTrace();
+            } finally {
+                connectToDB = false;
+            }
+        }
     }
 
 }

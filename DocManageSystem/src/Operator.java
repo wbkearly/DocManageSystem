@@ -2,22 +2,13 @@ import java.util.Scanner;
 
 public class Operator extends User {
 
-    String tip_menu = "****欢迎进入档案录入员菜单****";
-    String tip_operation = "请选择操作：";
-    String infos = "        1.上传文件\n"
-            + "        2.下载文件\n"
-            + "        3.文件列表\n"
-            + "        4.修改密码\n"
-            + "        5.退    出\n"
-            + "*********************************\n";
+    private Scanner in = new Scanner(System.in);
 
-    Scanner in = new Scanner(System.in);
-
-    public Operator(String name, String password, String role) {
+    Operator(String name, String password, String role) {
         super(name, password, role);
     }
 
-    public boolean uploadFile() {
+    private void uploadFile() {
 
         // TODO: 上传文件功能
         System.out.println("--------上传文件--------");
@@ -29,11 +20,19 @@ public class Operator extends User {
         in.next();
         System.out.println("上传文件......");
         System.out.println("上传成功!");
-        return true;
     }
 
     @Override
     public void showMenu() {
+
+        String tip_menu = "****欢迎进入档案录入员菜单****";
+        String tip_operation = "请选择操作：";
+        String infos = "        1.上传文件\n"
+                + "        2.下载文件\n"
+                + "        3.文件列表\n"
+                + "        4.修改密码\n"
+                + "        5.退    出\n"
+                + "*********************************\n";
 
         // TODO: 显示菜单功能
         while (true) {
@@ -57,6 +56,7 @@ public class Operator extends User {
                     break;
                 case 5:
                     exitSystem();
+                    System.exit(0);
                     break;
                 default:
                     System.out.println("输入错误");

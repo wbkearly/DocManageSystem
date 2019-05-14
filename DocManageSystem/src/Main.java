@@ -1,3 +1,4 @@
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class Main {
@@ -21,7 +22,12 @@ public class Main {
                 name = in.next();
                 System.out.println("请输入口令:");
                 password = in.next();
-                User user = DataProcessing.search(name, password);
+                User user = null;
+                try {
+                    user = DataProcessing.search(name, password);
+                } catch (SQLException e) {
+                    System.out.println("登录失败");
+                }
                 if (user == null) {
                     System.out.println("用户名或口令错误\n");
                 } else {
