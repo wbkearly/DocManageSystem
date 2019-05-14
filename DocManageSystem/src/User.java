@@ -41,26 +41,37 @@ public abstract class User {
     public void showFileList(){
 
         // TODO: 显示文件列表功能
+        System.out.println("文件列表...");
     }
 
     // 下载文件
-    public boolean downloadFile(){
+    public boolean downloadFile(String fileName){
 
         // TODO: 下载文件功能
+        System.out.println("下载文件:" + fileName + "......");
         return true;
     }
 
     // 修改个人信息
-    public boolean changeSelfInfo(){
+    public boolean changeSelfInfo(String password){
 
-        // TODO: 修改密码功能
-        return true;
+        //  TODO: 修改密码功能
+        if(DataProcessing.update(name, password, role)) {
+            this.password = password;
+            System.out.println("修改密码成功!");
+            return true;
+        } else {
+            System.out.println("修改密码失败!");
+            return false;
+        }
     }
 
     // 退出系统
     public void exitSystem(){
 
         // TODO：退出系统功能
+        System.out.println("系统退出，谢谢使用!");
+        System.exit(0);
     }
 
 }
