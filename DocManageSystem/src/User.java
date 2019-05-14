@@ -53,16 +53,18 @@ public abstract class User {
         try {
             Enumeration<Doc> e = DataProcessing.getAllDocs();
             Doc doc;
-            if (e.hasMoreElements()) { //至少存在自己
+            if (e.hasMoreElements()) {
                 System.out.println("ID\tcreator\ttimestamp\tdescription\tfilename");
                 doc = e.nextElement();
                 System.out.printf("%s\t%s\t%s\t%s\t%s\t%n", doc.getID(), doc.getCreator(), doc.getTimestamp(),
                         doc.getDescription(), doc.getFilename());
-            }
-            while (e.hasMoreElements()) {
-                doc = e.nextElement();
-                System.out.printf("%s\t%s\t%s\t%s\t%s\t%n", doc.getID(), doc.getCreator(), doc.getTimestamp(),
-                        doc.getDescription(), doc.getFilename());
+                while (e.hasMoreElements()) {
+                    doc = e.nextElement();
+                    System.out.printf("%s\t%s\t%s\t%s\t%s\t%n", doc.getID(), doc.getCreator(), doc.getTimestamp(),
+                            doc.getDescription(), doc.getFilename());
+                }
+            } else {
+                System.out.println("找不到任何档案信息!");
             }
         } catch (SQLException e) {
             System.out.println("从数据库获取档案信息失败!");
