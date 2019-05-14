@@ -1,8 +1,12 @@
+import java.util.Scanner;
+
 public abstract class User {
 
     private String name;
     private String password;
     private String role;
+
+    Scanner in = new Scanner(System.in);
 
     public String getName() {
         return name;
@@ -28,7 +32,7 @@ public abstract class User {
         this.role = role;
     }
 
-    public User(String name, String password, String role){
+    public User(String name, String password, String role) {
         this.name = name;
         this.password = password;
         this.role = role;
@@ -38,25 +42,33 @@ public abstract class User {
     public abstract void showMenu();
 
     // 显示文件列表
-    public void showFileList(){
+    public void showFileList() {
 
         // TODO: 显示文件列表功能
+        System.out.println("--------显示文件列表--------");
         System.out.println("文件列表...");
     }
 
     // 下载文件
-    public boolean downloadFile(String fileName){
+    public boolean downloadFile() {
 
         // TODO: 下载文件功能
+        System.out.println("--------下载文件--------");
+        System.out.println("请输入要下载的文件名:");
+        String fileName = in.next();
         System.out.println("下载文件:" + fileName + "......");
+        System.out.println("下载成功!");
         return true;
     }
 
     // 修改个人信息
-    public boolean changeSelfInfo(String password){
+    public boolean changeSelfInfo() {
 
         //  TODO: 修改密码功能
-        if(DataProcessing.update(name, password, role)) {
+        System.out.println("--------修改(本人)密码--------");
+        System.out.println("请输入新口令：");
+        String password = in.next();
+        if (DataProcessing.update(name, password, role)) {
             this.password = password;
             System.out.println("修改密码成功!");
             return true;
@@ -67,7 +79,7 @@ public abstract class User {
     }
 
     // 退出系统
-    public void exitSystem(){
+    public void exitSystem() {
 
         // TODO：退出系统功能
         System.out.println("系统退出，谢谢使用!");
