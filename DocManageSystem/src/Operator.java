@@ -1,3 +1,6 @@
+import java.io.*;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Scanner;
 
 public class Operator extends User {
@@ -12,14 +15,51 @@ public class Operator extends User {
 
         // TODO: 上传文件功能
         System.out.println("--------上传文件--------");
-        System.out.println("请输入源文件名:");
-        in.next();
+        String sourceFileName;
+        String ID;
+        String description;
+        System.out.println("请输入源文件名(完整路径):");
+        sourceFileName = in.next();
         System.out.println("请输入档案号:");
-        in.next();
+        ID = in.next();
         System.out.println("请输入档案描述:");
-        in.next();
-        System.out.println("上传文件......");
-        System.out.println("上传成功!");
+        description = in.next();
+
+        byte[] buffer = new byte[1024];
+
+        // 获取当前文件
+        File tempFile = new File(sourceFileName);
+        // 获取当前文件名
+        String fileName = tempFile.getName();
+        try {
+            BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(tempFile));
+            BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(uploadPath + fileName));
+            System.out.println("文件上传中...");
+            while (true) {
+                int byteRead = bufferedInputStream.read(buffer);
+                if (byteRead == -1)
+                    break;
+                bufferedOutputStream.write(buffer, 0, byteRead);
+            }
+            bufferedInputStream.close();
+            bufferedOutputStream.close();
+            System.out.println("文件上传成功!");
+            String creator = this.getName();
+            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+            if (!DataProcessing.insertDoc(ID, creator, timestamp, description, fileName)) {
+                tempFile = new File(uploadPath + fileName);
+                if(tempFile.delete()) {
+                    System.out.println("文件删除成功!");
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("文件不存在或路径名错误!");
+        } catch (SQLException e) {
+            System.out.println("向数据库写入档案信息出错!");
+        } catch (IOException e) {
+            System.out.println("读写文件出错!");
+        }
+
     }
 
     @Override

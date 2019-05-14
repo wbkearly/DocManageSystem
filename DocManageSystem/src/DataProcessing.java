@@ -1,4 +1,5 @@
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.*;
 
 public class DataProcessing {
@@ -10,21 +11,22 @@ public class DataProcessing {
      */
     @SuppressWarnings("unused")
     public static void Init() {
-        // connect to database
-
-        // update database connection status
-        connectToDB = Math.random() > 0.2;
-
     }
 
     @SuppressWarnings("WeakerAccess")
     static Hashtable<String, User> users;
+    static Hashtable<String, Doc> docs;
 
     static {
         users = new Hashtable<>();
         users.put("jack", new Operator("jack", "123", "operator"));
         users.put("rose", new Browser("rose", "123", "browser"));
         users.put("kate", new Administrator("kate", "123", "administrator"));
+        Init();
+
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        docs = new Hashtable<>();
+        docs.put("0001", new Doc("0001", "jack", timestamp, "Doc Source Java", "Doc.java"));
     }
 
     /**
@@ -35,13 +37,13 @@ public class DataProcessing {
      */
     @SuppressWarnings("WeakerAccess")
     public static User searchUser(String name) throws SQLException {
-        if (!connectToDB) {
+        /*if (!connectToDB) {
             throw new SQLException("Not Connected to Database");
         }
         double ranValue = Math.random();
         if (ranValue > 0.5) {
             throw new SQLException("Error in executing Query");
-        }
+        }*/
 
         if (users.containsKey(name)) {
             return users.get(name);
@@ -58,13 +60,13 @@ public class DataProcessing {
      */
     @SuppressWarnings("WeakerAccess")
     public static User search(String name, String password) throws SQLException {
-        if (!connectToDB) {
+        /*if (!connectToDB) {
             throw new SQLException("Not Connected to Database");
         }
         double ranValue = Math.random();
         if (ranValue > 0.5) {
             throw new SQLException("Error in executing Query");
-        }
+        }*/
 
         if (users.containsKey(name)) {
             User temp = users.get(name);
@@ -82,14 +84,14 @@ public class DataProcessing {
      */
     @SuppressWarnings("WeakerAccess")
     public static Enumeration<User> getAllUser() throws SQLException {
-        if (!connectToDB) {
+        /*if (!connectToDB) {
             throw new SQLException("Not Connected to Database");
         }
 
         double ranValue = Math.random();
         if (ranValue > 0.5) {
             throw new SQLException("Error in executing Query");
-        }
+        }*/
 
         return users.elements();
     }
@@ -104,12 +106,12 @@ public class DataProcessing {
      */
     @SuppressWarnings("WeakerAccess")
     public static boolean update(String name, String password, String role) throws SQLException {
-        if (!connectToDB)
+        /*if (!connectToDB)
             throw new SQLException("Not Connected to Database");
 
         double ranValue = Math.random();
         if (ranValue > 0.5)
-            throw new SQLException("Error in executing Update");
+            throw new SQLException("Error in executing Update");*/
 
         if (users.containsKey(name)) {
             return insertUser(name, password, role);
@@ -128,12 +130,12 @@ public class DataProcessing {
     @SuppressWarnings("WeakerAccess")
     public static boolean insert(String name, String password, String role) throws SQLException {
 
-        if (!connectToDB)
+       /* if (!connectToDB)
             throw new SQLException("Not Connected to Database");
 
         double ranValue = Math.random();
         if (ranValue > 0.5)
-            throw new SQLException("Error in executing Insert");
+            throw new SQLException("Error in executing Insert");*/
 
         if (users.containsKey(name))
             return false;
@@ -144,9 +146,10 @@ public class DataProcessing {
 
     /**
      * 根据用户名信息来进行对用户信息的插入或更新
-     * @param name 用户姓名
+     *
+     * @param name     用户姓名
      * @param password 用户密码
-     * @param role 用户身份
+     * @param role     用户身份
      * @return 返回是否插入或更新成功
      */
     private static boolean insertUser(String name, String password, String role) {
@@ -170,12 +173,12 @@ public class DataProcessing {
      */
     @SuppressWarnings("WeakerAccess")
     public static boolean delete(String name) throws SQLException {
-        if (!connectToDB)
+      /*  if (!connectToDB)
             throw new SQLException("Not Connected to Database");
 
         double ranValue = Math.random();
         if (ranValue > 0.5)
-            throw new SQLException("Error in excecuting Delete");
+            throw new SQLException("Error in excecuting Delete");*/
 
         if (users.containsKey(name)) {
             users.remove(name);
@@ -194,13 +197,37 @@ public class DataProcessing {
         if (connectToDB) {
             // close Statement and Connection
             try {
-                if (Math.random() > 0.5)
+               /* if (Math.random() > 0.5)
                     throw new SQLException("Error in disconnecting DB");
             } catch (SQLException sqlException) {
-                sqlException.printStackTrace();
+                sqlException.printStackTrace();*/
             } finally {
                 connectToDB = false;
             }
+        }
+    }
+
+    public static Doc searchDoc(String ID) throws SQLException {
+        if (docs.containsKey(ID)) {
+            Doc temp = docs.get(ID);
+            return temp;
+        }
+        return null;
+    }
+
+    public static Enumeration<Doc> getAllDocs() throws SQLException {
+        return docs.elements();
+    }
+
+    public static boolean insertDoc(String ID, String creator, Timestamp timestamp, String description, String filename) throws SQLException {
+        Doc doc;
+
+        if (docs.containsKey(ID))
+            return false;
+        else {
+            doc = new Doc(ID, creator, timestamp, description, filename);
+            docs.put(ID, doc);
+            return true;
         }
     }
 
