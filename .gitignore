@@ -15,3 +15,6 @@ build
 *.class
 *.xml
 *.iml
+
+#自定义
+.idea
