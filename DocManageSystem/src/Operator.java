@@ -7,6 +7,7 @@ public class Operator extends User {
     public boolean uploadFile() {
 
         // TODO: 上传文件功能
+        System.out.println("上传文件......");
         return true;
     }
 

@@ -14,7 +14,7 @@ public class DataProcessing {
 	/**
 	 * 在Hashtable中查找是否存在姓名为name的用户
 	 * @param name 用户姓名
-	 * @return 返回是否存在姓名为name的用户
+	 * @return 返回姓名为name的用户
 	 */
 	public static User searchUser(String name){
 		if (users.containsKey(name)) {
