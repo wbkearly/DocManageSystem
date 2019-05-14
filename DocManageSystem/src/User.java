@@ -1,4 +1,4 @@
-public class User {
+public abstract class User {
 
     private String name;
     private String password;
@@ -35,7 +35,7 @@ public class User {
     }
 
     // 显示菜单
-    public void showMenu(){}
+    public abstract void showMenu();
 
     // 显示文件列表
     public void showFileList(){
