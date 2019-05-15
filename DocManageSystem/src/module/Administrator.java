@@ -1,3 +1,5 @@
+package module;
+
 import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.Scanner;

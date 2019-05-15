@@ -1,3 +1,5 @@
+package module;
+
 import java.sql.Timestamp;
 
 public class Doc {

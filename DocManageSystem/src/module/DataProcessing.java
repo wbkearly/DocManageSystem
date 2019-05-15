@@ -1,3 +1,5 @@
+package module;
+
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.*;
@@ -26,7 +28,7 @@ public class DataProcessing {
 
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         docs = new Hashtable<>();
-        docs.put("0001", new Doc("0001", "jack", timestamp, "Doc Source Java", "Doc.java"));
+        docs.put("0001", new Doc("0001", "jack", timestamp, "module.Doc Source Java", "Doc.java"));
     }
 
     /**

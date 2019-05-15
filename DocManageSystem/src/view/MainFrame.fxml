@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane fx:controller="controller.MainController"
+      xmlns:fx="http://javafx.com/fxml">
+    <children>
+        <MenuBar>
+            <menus>
+                <Menu fx:id="menu_userManage" text="用户管理">
+                    <items>
+                        <MenuItem text="新增用户" />
+                        <MenuItem fx:id="menuItem_modUser" text="修改用户" />
+                        <MenuItem fx:id="menuItem_delUser" text="删除用户" />
+                    </items>
+                </Menu>
+                <Menu fx:id="menu_docManage" text="档案管理">
+                    <items>
+                        <MenuItem fx:id="menuItem_docUpload" text="档案上传" />
+                        <MenuItem fx:id="menuItem_docDownload" text="档案下载" />
+                    </items>
+                </Menu>
+                <Menu fx:id="menu_selfInfoManage" text="个人信息管理">
+                    <items>
+                        <MenuItem fx:id="menuItem_selfInfoMod" text="信息修改" />
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </children>
+</Pane>

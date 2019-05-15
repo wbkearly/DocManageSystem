@@ -1,3 +1,5 @@
+package module;
+
 import java.util.Scanner;
 
 public class Browser extends User {
