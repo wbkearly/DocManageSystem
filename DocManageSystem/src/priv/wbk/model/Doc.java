@@ -1,3 +1,5 @@
+package priv.wbk.model;
+
 import java.sql.Timestamp;
 
 public class Doc {

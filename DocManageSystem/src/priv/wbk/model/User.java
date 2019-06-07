@@ -1,6 +1,9 @@
+package priv.wbk.model;
+
+import priv.wbk.jdbc.DataProcessing;
+
 import java.io.*;
 import java.sql.SQLException;
-import java.util.Enumeration;
 import java.util.Scanner;
 
 public abstract class User {
@@ -12,7 +15,7 @@ public abstract class User {
 
     private Scanner in = new Scanner(System.in);
 
-    String getName() {
+    public String getName() {
         return name;
     }
 
@@ -20,7 +23,7 @@ public abstract class User {
         this.name = name;
     }
 
-    String getPassword() {
+    public String getPassword() {
         return password;
     }
 
@@ -28,7 +31,7 @@ public abstract class User {
         this.password = password;
     }
 
-    String getRole() {
+    public String getRole() {
         return role;
     }
 
@@ -36,7 +39,7 @@ public abstract class User {
         this.role = role;
     }
 
-    User(String name, String password, String role) {
+    public User(String name, String password, String role) {
         this.name = name;
         this.password = password;
         this.role = role;
@@ -46,29 +49,9 @@ public abstract class User {
     public abstract void showMenu();
 
     // 显示文件列表
-    void showFileList() {
+    public void showFileList() {
 
         // TODO: 显示文件列表功能
-        System.out.println("--------文件列表--------");
-        try {
-            Enumeration<Doc> e = DataProcessing.getAllDocs();
-            Doc doc;
-            if (e.hasMoreElements()) {
-                System.out.println("ID\tcreator\ttimestamp\tdescription\tfilename");
-                doc = e.nextElement();
-                System.out.printf("%s\t%s\t%s\t%s\t%s\t%n", doc.getID(), doc.getCreator(), doc.getTimestamp(),
-                        doc.getDescription(), doc.getFilename());
-                while (e.hasMoreElements()) {
-                    doc = e.nextElement();
-                    System.out.printf("%s\t%s\t%s\t%s\t%s\t%n", doc.getID(), doc.getCreator(), doc.getTimestamp(),
-                            doc.getDescription(), doc.getFilename());
-                }
-            } else {
-                System.out.println("找不到任何档案信息!");
-            }
-        } catch (SQLException e) {
-            System.out.println("从数据库获取档案信息失败!");
-        }
     }
 
     // 下载文件
@@ -128,7 +111,7 @@ public abstract class User {
         System.out.println("请输入新口令：");
         String password = in.next();
         try {
-            if (DataProcessing.update(name, password, role)) {
+            if (DataProcessing.updateUser(name, password, role)) {
                 this.password = password;
                 System.out.println("修改密码成功!");
             } else {

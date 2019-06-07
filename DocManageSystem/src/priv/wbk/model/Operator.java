@@ -1,3 +1,7 @@
+package priv.wbk.model;
+
+import priv.wbk.jdbc.DataProcessing;
+
 import java.io.*;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -7,7 +11,7 @@ public class Operator extends User {
 
     private Scanner in = new Scanner(System.in);
 
-    Operator(String name, String password, String role) {
+    public Operator(String name, String password, String role) {
         super(name, password, role);
     }
 

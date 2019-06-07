@@ -1,12 +1,15 @@
+package priv.wbk.model;
+
+import priv.wbk.jdbc.DataProcessing;
+
 import java.sql.SQLException;
-import java.util.Enumeration;
 import java.util.Scanner;
 
 public class Administrator extends User {
 
     private Scanner in = new Scanner(System.in);
 
-    Administrator(String name, String password, String role) {
+    public Administrator(String name, String password, String role) {
         super(name, password, role);
     }
 
@@ -22,7 +25,7 @@ public class Administrator extends User {
         System.out.println("请输入角色：");
         role = in.next();
         try {
-            if (DataProcessing.searchUser(name) != null && DataProcessing.update(name, password, role)) {
+            if (DataProcessing.searchUser(name) != null && DataProcessing.updateUser(name, password, role)) {
                 User user = DataProcessing.searchUser(name);
                 if (user != null && user.getName().equals(name) && user.getRole().equals(role) && user.getPassword().equals(password)) {
                     System.out.println("修改用户" + name + "信息成功!");
@@ -66,7 +69,7 @@ public class Administrator extends User {
         System.out.println("请输入角色：");
         role = in.next();
         try {
-            if (DataProcessing.insert(name, password, role) && DataProcessing.searchUser(name) != null) {
+            if (DataProcessing.insertUser(name, password, role) && DataProcessing.searchUser(name) != null) {
                 System.out.println("新增用户：role:" + role + " " + "name:" + name + "成功!");
             } else {
                 System.out.println("新增用户失败!");
@@ -79,22 +82,6 @@ public class Administrator extends User {
     private void listUser() {
 
         // TODO: 显示所有用户信息功能
-        try {
-            Enumeration<User> e = DataProcessing.getAllUser();
-            User user;
-            if (e.hasMoreElements()) { //至少存在自己
-                System.out.println("用户名\t密码\t身份");
-                user = e.nextElement();
-                System.out.printf("%s\t%s\t%s%n", user.getName(), user.getPassword(), user.getRole());
-            }
-            while (e.hasMoreElements()) {
-                user = e.nextElement();
-                System.out.printf("%s\t%s\t%s%n", user.getName(), user.getPassword(), user.getRole());
-            }
-        } catch (SQLException ex) {
-            System.out.println("获取所有用户信息失败!");
-        }
-
     }
 
     @Override

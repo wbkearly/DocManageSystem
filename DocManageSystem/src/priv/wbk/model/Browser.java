@@ -1,10 +1,12 @@
+package priv.wbk.model;
+
 import java.util.Scanner;
 
 public class Browser extends User {
 
     private Scanner in = new Scanner(System.in);
 
-    Browser(String name, String password, String role) {
+    public Browser(String name, String password, String role) {
         super(name, password, role);
     }
 
