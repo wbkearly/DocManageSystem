@@ -12,6 +12,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import priv.wbk.controller.MainFrameController;
 import priv.wbk.model.User;
 import priv.wbk.utils.AddComponentHelper;
 
@@ -42,7 +43,7 @@ public class MainFrame extends JFrame {
 	private JMenuItem selfInfoModMenuItem; //个人信息修改菜单项
 	
 	//登录人员
-	private User user = null;
+	private User currentUser = null;
 
 	/**
 	 * 启动应用
@@ -75,7 +76,7 @@ public class MainFrame extends JFrame {
 		AddComponentHelper.setFrameInScreenCenter(this);
 		
 		//启用窗体的关闭按钮
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
 		//设置内容面板
 		contentPane = new JPanel();
@@ -122,12 +123,12 @@ public class MainFrame extends JFrame {
 		selfInfoModMenuItem.addActionListener(new SelfInfoActionListener());
 	}
 	
-	public User getUser() {
-		return user;
+	public User getCurrentUser() {
+		return currentUser;
 	}
 
-	public void setUser(User user) {
-		this.user = user;
+	public void setCurrentUser(User currentUser) {
+		this.currentUser = currentUser;
 	}
 	
 	public JMenu getUserManageMenu() {
@@ -142,8 +143,7 @@ public class MainFrame extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
-			
+			MainFrameController.goUserFrameByIndex(currentUser, 0);
 		}
 		
 	}
@@ -152,8 +152,7 @@ public class MainFrame extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
-			
+			MainFrameController.goUserFrameByIndex(currentUser, 2);
 		}
 		
 	}
@@ -162,8 +161,7 @@ public class MainFrame extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
-			
+			MainFrameController.goUserFrameByIndex(currentUser, 1);
 		}
 		
 	}
@@ -172,8 +170,8 @@ public class MainFrame extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
 			
+			MainFrameController.goFileFrameById(currentUser, 0);
 		}
 		
 	}
@@ -182,8 +180,8 @@ public class MainFrame extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
 			
+			MainFrameController.goFileFrameById(currentUser, 1);
 		}
 		
 	}
@@ -192,8 +190,8 @@ public class MainFrame extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
 			
+			MainFrameController.goSelfInfoFrame(currentUser);
 		}
 		
 	}

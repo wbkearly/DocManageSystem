@@ -13,12 +13,15 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 
 import priv.wbk.jdbc.DataProcessing;
@@ -41,7 +44,7 @@ public class UserFrame extends JFrame {
 	private JLabel add_passwordLabel; //新增用户密码标签
 	private JLabel add_roleLabel; //新增用户身份标签
 	private JTextField add_usernameField; //新增用户名文本框
-	private JPasswordField add_PasswordField; //新增用户密码文本框
+	private JPasswordField add_passwordField; //新增用户密码文本框
 	private JComboBox<String> add_roleComboBox; //新增用户身份下拉框
 	private JButton add_ensureButton; //新增用户确认按钮
 	private JButton add_cancelButton; //新增用户取消按钮
@@ -69,9 +72,13 @@ public class UserFrame extends JFrame {
 	private JButton del_ensureButton; //删除用户确认按钮
 	private JButton del_cancelButton; //删除用户取消按钮
 	private DefaultTableModel tableModel; //删除用户表格模型
-	private String[][] tableValue = new String[100][3]; //表格数据,假定最多为100行3列
+	private String[][] tableValue;//表格数据,假定最多为100行3列
 	private String[] colName = {"用户名", "口令", "角色"}; //列名
 	
+	//当前用户
+	private User currentUser = null;
+
+
 	/**
 	 * 
 	 */
@@ -103,10 +110,11 @@ public class UserFrame extends JFrame {
 		AddComponentHelper.setFrameInScreenCenter(this);
 		
 		//启用窗体的关闭按钮
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
 		//设置选项卡面板
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		tabbedPane.addChangeListener(new ChangeTabListener());
 		AddComponentHelper.addTabbedPane(this, tabbedPane);
 		
 		//添加新增用户选项卡
@@ -137,9 +145,9 @@ public class UserFrame extends JFrame {
 		AddComponentHelper.setLabel(add_passwordLabel, 70, 80, 70, 30);
 		AddComponentHelper.addLabel(addUserPanel, add_passwordLabel);
 		
-		add_PasswordField = new JPasswordField();
-		AddComponentHelper.setPasswordField(add_PasswordField, 130, 80, 160, 30);
-		AddComponentHelper.addPasswordField(addUserPanel, add_PasswordField);
+		add_passwordField = new JPasswordField();
+		AddComponentHelper.setPasswordField(add_passwordField, 130, 80, 160, 30);
+		AddComponentHelper.addPasswordField(addUserPanel, add_passwordField);
 		
 		add_roleLabel = new JLabel("身份:");
 		AddComponentHelper.setLabel(add_roleLabel, 70, 120, 70, 30);
@@ -167,7 +175,6 @@ public class UserFrame extends JFrame {
 		mod_usernameComboBox = new JComboBox<String>();
 		mod_usernameComboBoxModel = new DefaultComboBoxModel<String>();
 		mod_usernameComboBox.addItemListener(new ModUsernameListener());
-		addUserNameToComboBox(); //TODO
 		AddComponentHelper.setComboBox(mod_usernameComboBox, mod_usernameComboBoxModel, 130, 40, 160, 30);
 		AddComponentHelper.addComboBox(modUserPanel, mod_usernameComboBox);
 		
@@ -185,7 +192,6 @@ public class UserFrame extends JFrame {
 		
 		mod_roleComboBox = new JComboBox<String>();
 		AddComponentHelper.setComboBox(mod_roleComboBox, mod_roleComboBoxModel, 130, 120, 160, 30);
-		initRoleComboBox();
 		AddComponentHelper.addComboBox(modUserPanel, mod_roleComboBox);
 		
 		mod_ensureButton = new JButton("确定");
@@ -206,7 +212,6 @@ public class UserFrame extends JFrame {
 		del_userTable = new JTable();
 		del_userTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
 		del_userTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-		addUserToTable(); //TODO
 		scrollPane.setViewportView(del_userTable);
 		
 		del_ensureButton = new JButton("确定");
@@ -221,10 +226,19 @@ public class UserFrame extends JFrame {
 		
 	}
 	
+	
+	public User getCurrentUser() {
+		return currentUser;
+	}
+
+	public void setCurrentUser(User currentUser) {
+		this.currentUser = currentUser;
+	}
+	
 	private void initRoleComboBox() {
 		User user = null;
 		try{
-			user = DataProcessing.searchUser((String)(mod_usernameComboBox.getSelectedItem()));
+			user = DataProcessing.searchUserByName((String)(mod_usernameComboBox.getSelectedItem()));
 			mod_passwordField.setText(user.getPassword());
 			mod_roleComboBox.setSelectedItem(user.getClass().getSimpleName());
 		}catch(Exception ex){
@@ -236,10 +250,11 @@ public class UserFrame extends JFrame {
 		return tabbedPane;
 	}
 
-	private void addUserNameToComboBox() {
+	private void showUserNameToComboBox() {
 		
 		try {
 			Vector<User> users = DataProcessing.getAllUser();
+			mod_usernameComboBoxModel.removeAllElements();
 			for(User user:users) {
 				mod_usernameComboBoxModel.addElement(user.getName());
 			}
@@ -249,10 +264,11 @@ public class UserFrame extends JFrame {
 		
 	}
 	
-	private void addUserToTable() {
+	private void showUserInfoToTable() {
 	
 		try {
 			Vector<User> users = DataProcessing.getAllUser();
+			tableValue = new String[100][3]; 
 			int row = 0;
 			for(User user:users) {
 				tableValue[row][0] = user.getName();
@@ -268,6 +284,20 @@ public class UserFrame extends JFrame {
 		
 	}
 	
+	private class ChangeTabListener implements ChangeListener {
+
+		@Override
+		public void stateChanged(ChangeEvent e) {
+			if(tabbedPane.getSelectedIndex() == 1) {
+				showUserNameToComboBox();
+				initRoleComboBox();
+			}
+			else if(tabbedPane.getSelectedIndex() == 2) {
+				showUserInfoToTable();
+			}
+		}
+		
+	}
 	private class ModUsernameListener implements ItemListener {
 
 		@Override
@@ -275,9 +305,8 @@ public class UserFrame extends JFrame {
 			User user;
 			if (e.getStateChange() == ItemEvent.SELECTED) {
 				try{
-					user = DataProcessing.searchUser((String)e.getItem());
+					user = DataProcessing.searchUserByName((String)e.getItem());
 					mod_passwordField.setText(user.getPassword());
-					System.out.println(user.getClass().getSimpleName());
 					mod_roleComboBox.setSelectedItem(user.getClass().getSimpleName());
 				}catch(Exception ex){
 					ex.printStackTrace();
@@ -290,9 +319,19 @@ public class UserFrame extends JFrame {
 	private class AddEnsureListener implements ActionListener{
 		
 		@Override
-		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
-			
+		public void actionPerformed(ActionEvent event) {
+			try {
+				String name = add_usernameField.getText();
+				String password = String.valueOf(add_passwordField.getPassword());
+				String role = add_roleComboBox.getSelectedItem().toString();
+				if(DataProcessing.insertUser(name, password, role)) {
+					JOptionPane.showMessageDialog(addUserPanel, "新增用户成功!");
+				} else {
+					JOptionPane.showMessageDialog(addUserPanel, "新增用户失败!");
+				}
+			}catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 	}
@@ -301,8 +340,7 @@ public class UserFrame extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
-			
+			dispose();
 		}
 		
 	}
@@ -310,9 +348,19 @@ public class UserFrame extends JFrame {
 	private class ModEnsureListener implements ActionListener {
 
 		@Override
-		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
-			
+		public void actionPerformed(ActionEvent event) {
+			try {
+				String name = mod_usernameComboBox.getSelectedItem().toString();
+				String password = String.valueOf(mod_passwordField.getPassword());
+				String role = mod_roleComboBox.getSelectedItem().toString();
+				if(DataProcessing.updateUser(name, password, role)) {
+					JOptionPane.showMessageDialog(modUserPanel, "修改用户成功!");
+				} else {
+					JOptionPane.showMessageDialog(modUserPanel, "修改用户失败!");
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		
 	}
@@ -321,8 +369,7 @@ public class UserFrame extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
-			
+			dispose();
 		}
 		
 	}
@@ -330,9 +377,19 @@ public class UserFrame extends JFrame {
 	private class DelEnsureListener implements ActionListener {
 		
 		@Override
-		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
-			
+		public void actionPerformed(ActionEvent event) {
+			try {
+				int selectedRow = del_userTable.getSelectedRow();
+				String name = tableValue[selectedRow][0];
+				if(DataProcessing.deleteUserByName(name)) {
+					showUserInfoToTable();
+					JOptionPane.showMessageDialog(delUserPanel, "删除成功!");
+				} else {
+					JOptionPane.showMessageDialog(delUserPanel, "删除失败!");
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -340,8 +397,7 @@ public class UserFrame extends JFrame {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
-			
+			dispose();
 		}
 	}
 }

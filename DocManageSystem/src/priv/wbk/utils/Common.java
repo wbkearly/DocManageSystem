@@ -28,12 +28,12 @@ public class Common {
                 e.printStackTrace();
             }
         }
-        if(conn != null) {
-            try {
-                conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+//        if(conn != null) {
+//            try {
+//                conn.close();
+//            } catch (SQLException e) {
+//                e.printStackTrace();
+//            }
+//        }
     }
 }

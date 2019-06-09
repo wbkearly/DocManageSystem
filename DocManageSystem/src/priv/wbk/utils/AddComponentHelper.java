@@ -41,7 +41,7 @@ public class AddComponentHelper {
 		int frame_Width = frame.getWidth();
 		
 		//设置窗体左上角坐标的位置
-		frame.setLocation((screenWidth-frame_Width)/2,(screenHeight-frame_Height)/2);
+		frame.setLocation((screenWidth-frame_Width)/2, (screenHeight-frame_Height)/2);
 	}
 	
 	
@@ -265,11 +265,20 @@ public class AddComponentHelper {
 	 */
 	public static void setTable(JTable table, DefaultTableModel tableModel) {
 		
+		table.setFont(new Font("Microsoft YaHei", Font.BOLD, 12));
 		table.setModel(tableModel);
 		table.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
 		table.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 	}
 	
+	/**
+	 * 设置文本域位置及宽高
+	 * @param textArea 文本域
+	 * @param x 文本域左上角横坐标
+	 * @param y 文本域左上角纵坐标
+	 * @param width 文本域宽度
+	 * @param height 文本域高度
+	 */
 	public static void setTextArea(JTextArea textArea, int x, int y, int width, int height) {
 		
 		//设置文本域字体

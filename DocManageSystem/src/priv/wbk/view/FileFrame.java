@@ -1,22 +1,38 @@
 package priv.wbk.view;
 
 import java.awt.EventQueue;
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Vector;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 
 import priv.wbk.jdbc.DataProcessing;
 import priv.wbk.model.Doc;
+import priv.wbk.model.User;
 import priv.wbk.utils.AddComponentHelper;
 
 public class FileFrame extends JFrame {
@@ -51,6 +67,9 @@ public class FileFrame extends JFrame {
 	private String[][] tableValue = new String[100][5]; //表格数据,假定最多为100行
 	private String[] colName = {"档案号", "创建者", "时间", "文件名", "描述"}; //列名
 	
+	private String uploadPath = "D:\\OOP\\uploadFile\\";
+	private User currentUser;
+
 	/**
 	 * Launch the application.
 	 */
@@ -82,11 +101,12 @@ public class FileFrame extends JFrame {
 		AddComponentHelper.setFrameInScreenCenter(this);
 		
 		//启用窗体的关闭按钮
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
 		//设置选项卡面板
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		AddComponentHelper.addTabbedPane(this, tabbedPane);
+		tabbedPane.addChangeListener(new TabChangeListener());
 		
 		//添加文件上传选项卡
 		uploadPanel = new JPanel();
@@ -131,14 +151,17 @@ public class FileFrame extends JFrame {
 		fileOpenButton = new JButton("打开");
 		AddComponentHelper.setButton(fileOpenButton, 250, 150, 70, 20);
 		AddComponentHelper.addButton(uploadPanel, fileOpenButton);
+		fileOpenButton.addActionListener(new OpenFileListener());
 		
 		uploadButton = new JButton("上传");
 		AddComponentHelper.setButton(uploadButton, 100, 190, 70, 20);
 		AddComponentHelper.addButton(uploadPanel, uploadButton);
+		uploadButton.addActionListener(new UploadListener());
 		
 		uploadCancelButton = new JButton("取消");
 		AddComponentHelper.setButton(uploadCancelButton, 190, 190, 70, 20);
 		AddComponentHelper.addButton(uploadPanel, uploadCancelButton);
+		uploadCancelButton.addActionListener(new UploadCancelListener());
 		
 		//添加组件到文件下载面板
 		
@@ -149,16 +172,33 @@ public class FileFrame extends JFrame {
 		docTable = new JTable();
 		docTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
 		docTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-		showFileToTable();
 		downloadScrollPane.setViewportView(docTable);
 		
 		downloadButton = new JButton("下载");
 		AddComponentHelper.setButton(downloadButton, 100, 190, 70, 20);
 		AddComponentHelper.addButton(downloadPanel, downloadButton);
+		downloadButton.addActionListener(new DownloadListener());
 		
 		downloadCancelButton = new JButton("取消");
 		AddComponentHelper.setButton(downloadCancelButton, 190, 190, 70, 20);
 		AddComponentHelper.addButton(downloadPanel, downloadCancelButton);
+		downloadCancelButton.addActionListener(new DownloadCancelListener());
+	}
+	
+	public User getCurrentUser() {
+		return currentUser;
+	}
+
+	public void setCurrentUser(User currentUser) {
+		this.currentUser = currentUser;
+	}
+	
+	public JPanel getUploadPanel() {
+		return uploadPanel;
+	}
+
+	public JPanel getDownloadPanel() {
+		return downloadPanel;
 	}
 	
 	private void showFileToTable() {
@@ -184,6 +224,146 @@ public class FileFrame extends JFrame {
 
 	public JTabbedPane getTabbedPane() {
 		return tabbedPane;
+	}
+	
+	private class TabChangeListener implements ChangeListener {
+
+		@Override
+		public void stateChanged(ChangeEvent e) {
+			if(tabbedPane.getSelectedIndex() == 1) {
+				showFileToTable();
+			}
+		}
+		
+	}
+
+	private class OpenFileListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			
+			JFileChooser fileChooser = new JFileChooser(".");
+			fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			fileChooser.showOpenDialog(new Frame());
+			docNameTextField.setText(fileChooser.getSelectedFile().getAbsolutePath());
+			
+		}
+		
+	}
+	
+	private class UploadListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			
+			String sourceFileName = docNameTextField.getText();
+			String ID = docIdField.getText();
+			String description = docDescribeTextArea.getText();
+			byte[] buffer = new byte[1024];
+			
+			// 获取当前文件
+			File tempFile = new File(sourceFileName);
+			// 获取当前文件名
+			String fileName = tempFile.getName();
+			try {
+			    BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(tempFile));
+			    BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(uploadPath + fileName));
+				while (true) {
+				    int byteRead = bufferedInputStream.read(buffer);
+				    if (byteRead == -1)
+				        break;
+				    bufferedOutputStream.write(buffer, 0, byteRead);
+				}
+				bufferedInputStream.close();
+				bufferedOutputStream.close();
+				String creator = currentUser.getName();
+				Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+				if (!DataProcessing.insertDoc(ID, creator, timestamp, description, fileName)) {
+				    tempFile = new File(uploadPath + fileName);
+			    } else {
+			    	JOptionPane.showMessageDialog(uploadPanel, "文件上传成功!");
+			    }
+			} catch (FileNotFoundException e) {
+			    JOptionPane.showMessageDialog(uploadPanel, "文件不存在或路径名错误!");
+			} catch (SQLException e) {
+				JOptionPane.showMessageDialog(uploadPanel, "向数据库写入档案信息出错!");
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(uploadPanel, "读写文件出错!");
+			}
+
+		}
+		
+	}
+	
+	private class UploadCancelListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			dispose();
+		}
+		
+	}
+	
+	private class DownloadListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			
+			int selectedRow = docTable.getSelectedRow();
+			JFileChooser fileChooser = new JFileChooser(".");
+			fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			fileChooser.showSaveDialog(new Frame());
+			String downloadPath = fileChooser.getSelectedFile().getAbsolutePath();
+					
+			byte[] buffer = new byte[1024];
+	        String fileId = tableValue[selectedRow][0];
+	        String fileName;
+	        String tempFileName;
+	        String targetFileName;
+	        try {
+	            Doc doc = DataProcessing.searchDocById(fileId);
+	            if (doc != null) {
+	                fileName = doc.getFilename();
+	                tempFileName = uploadPath + fileName; 
+	                targetFileName = downloadPath + "//" + fileName;
+	                File tempFile = new File(tempFileName);
+	                File targetFile = new File(targetFileName);
+	                FileInputStream fileInputStream;
+	                FileOutputStream fileOutputStream;
+	                fileInputStream = new FileInputStream(tempFile);
+	                BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
+	                fileOutputStream = new FileOutputStream(targetFile);
+	                BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
+	                while (true) {
+	                    int byteRead = bufferedInputStream.read(buffer);
+	                    if (byteRead == -1)
+	                        break;
+	                    bufferedOutputStream.write(buffer, 0, byteRead);
+	                }
+	                bufferedInputStream.close();
+	                bufferedOutputStream.close();
+	                JOptionPane.showMessageDialog(downloadPanel, "文件下载成功!");
+	            } else {
+	                JOptionPane.showMessageDialog(downloadPanel, "未找到档案号为" + fileId + "的文件!");
+	            }
+	        } catch (SQLException e) {
+	        	JOptionPane.showMessageDialog(downloadPanel, "数据库查找文件失败!");
+	        } catch (FileNotFoundException e) {
+	        	JOptionPane.showMessageDialog(downloadPanel,"文件不存在或路径名错误!");
+	        } catch (IOException e) {
+	        	JOptionPane.showMessageDialog(downloadPanel,"读写文件错误,文件下载失败!");
+	        }
+		}
+		
+	}
+	
+	private class DownloadCancelListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			dispose();
+		}
+	
 	}
 
 }

@@ -125,7 +125,7 @@ public class LoginFrame extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String username = usernameField.getText();
-			String password = passwordFiled.getPassword().toString();
+			String password = String.valueOf(passwordFiled.getPassword());
 			if(!LoginController.checkLoginAccess(username, password)) {
 				JOptionPane.showMessageDialog(contentPane, "登录失败!");
 			} else {
@@ -145,6 +145,7 @@ public class LoginFrame extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 			System.exit(WindowConstants.EXIT_ON_CLOSE);
 		}
+		
 	}
 	
 }

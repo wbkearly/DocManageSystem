@@ -4,24 +4,22 @@ import java.sql.SQLException;
 
 import priv.wbk.jdbc.DataProcessing;
 import priv.wbk.model.User;
-import priv.wbk.view.MainFrame;
 
 public class LoginController {
 	
-	private static User user = null; 
+	private static User loginUser = null; 
 	
 	public static User getUser() {
-		return user;
+		return loginUser;
 	}
 	
 	public static boolean checkLoginAccess(String username, String password) {
 	
 		try {
-			user = DataProcessing.searchUser(username, password);
-			if(user != null) {
-				MainFrame mainFrame = new MainFrame(); 
-				mainFrame.setVisible(true);
-				InitMainFrame.initMainFrame(mainFrame);
+			loginUser = DataProcessing.searchUser(username, password);
+			if(loginUser != null) {
+				@SuppressWarnings("unused")
+				MainFrameController mainFrameController = new MainFrameController(loginUser);
 				return true;
 			}
 		} catch (SQLException e) {
@@ -29,8 +27,5 @@ public class LoginController {
 		}
 		return false;
 	}
-	
-	
-	
 	
 }

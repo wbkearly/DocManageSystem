@@ -1,15 +1,21 @@
 package priv.wbk.view;
 
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.SQLException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import priv.wbk.jdbc.DataProcessing;
+import priv.wbk.model.User;
 import priv.wbk.utils.AddComponentHelper;
 
 public class SelfInfoFrame extends JFrame {
@@ -31,12 +37,14 @@ public class SelfInfoFrame extends JFrame {
 	private JPasswordField newPwdField; //新密码 密码框
 	private JPasswordField confirmNewPwdField; //确认新密码 密码框
 	private JTextField roleField; //角色文本框
-	
+
 	private JButton ensureButton; //确认按钮
 	private JButton cancelButton; //取消按钮
+	
+	private User currentUser = null;
 
 	/**
-	 * Launch the application.
+	 * 启动应用程序
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -52,7 +60,7 @@ public class SelfInfoFrame extends JFrame {
 	}
 
 	/**
-	 * Create the frame.
+	 * 创建窗体
 	 */
 	public SelfInfoFrame() {
 		
@@ -66,7 +74,7 @@ public class SelfInfoFrame extends JFrame {
 		AddComponentHelper.setFrameInScreenCenter(this);
 		
 		//启用窗体的关闭按钮
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
 		//设置内容面板
 		contentPane = new JPanel();
@@ -117,11 +125,76 @@ public class SelfInfoFrame extends JFrame {
 		ensureButton = new JButton("确定");
 		AddComponentHelper.setButton(ensureButton, 70, 220, 70, 20);
 		AddComponentHelper.addButton(contentPane, ensureButton);
+		ensureButton.addActionListener(new EnsureListener());
 		
 		cancelButton = new JButton("取消");
 		AddComponentHelper.setButton(cancelButton, 220, 220, 70, 20);
 		AddComponentHelper.addButton(contentPane, cancelButton);
+		cancelButton.addActionListener(new CancelListener());
 		
 	}
 
+	public User getCurrentUser() {
+		return currentUser;
+	}
+
+	public void setCurrentUser(User currentUser) {
+		this.currentUser = currentUser;
+	}
+
+
+	public JTextField getUsernameField() {
+		return usernameField;
+	}
+	
+	public JTextField getRoleField() {
+		return roleField;
+	}
+	
+	private class EnsureListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			String name = usernameField.getText();
+			String role = roleField.getText();
+			String oldPwd = String.valueOf(oldPwdField.getPassword());
+			String newPwd = String.valueOf(newPwdField.getPassword());
+			String confirmNewPwd = String.valueOf(confirmNewPwdField.getPassword());
+			if(!oldPwd.equals(currentUser.getPassword())) {
+				JOptionPane.showMessageDialog(contentPane, "原密码不正确!");
+			}
+			else {
+				if(newPwd.equals("")) {
+					JOptionPane.showMessageDialog(contentPane, "新密码不能为空!");
+				}
+				else {
+					if(!confirmNewPwd.equals(newPwd)) {
+						JOptionPane.showMessageDialog(contentPane, "两次密码不一致!");
+					}
+					else {
+						try {
+							if(DataProcessing.updateUser(name, newPwd, role)) {
+								JOptionPane.showMessageDialog(contentPane, "修改信息成功!");
+							}
+							else {
+								JOptionPane.showMessageDialog(contentPane, "修改信息失败!");
+							}
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		}
+		
+	}
+	
+	private class CancelListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			dispose();
+		}
+		
+	}
 }

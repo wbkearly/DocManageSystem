@@ -20,7 +20,7 @@ public class DBConfig {
         super();
         InputStream is = null;
         try {
-            is = new FileInputStream("C:\\Users\\32072\\.config\\jdbc.properties");
+            is = new FileInputStream("D:\\Code\\Java\\OOP\\DocManageSystem\\JDBCProperties\\jdbc.properties");
             Properties p = new Properties();
             p.load(is);
             this.driver = p.getProperty("jdbc.driver");

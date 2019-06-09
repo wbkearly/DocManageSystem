@@ -1,19 +1,11 @@
 package priv.wbk.model;
 
-import priv.wbk.jdbc.DataProcessing;
-
-import java.io.*;
-import java.sql.SQLException;
-import java.util.Scanner;
-
 public abstract class User {
 
     private String name;
     private String password;
     private String role;
     String uploadPath = "D:\\OOP\\uploadFile\\";
-
-    private Scanner in = new Scanner(System.in);
 
     public String getName() {
         return name;
@@ -58,76 +50,18 @@ public abstract class User {
     void downloadFile() {
 
         // TODO: 下载文件功能
-        System.out.println("--------文件下载--------");
-        byte[] buffer = new byte[1024];
-        String fileId;
-        String fileName;
-        String tempFileName;
-        String targetFileName;
-        System.out.println("请输入要下载的档案号:");
-        fileId = in.next();
-        try {
-            Doc doc = DataProcessing.searchDoc(fileId);
-            if (doc != null) {
-                fileName = doc.getFilename();
-                tempFileName = uploadPath + fileName;
-                String downloadPath = "D:\\OOP\\downloadFile\\";
-                targetFileName = downloadPath + fileName;
-                File tempFile = new File(tempFileName);
-                File targetFile = new File(targetFileName);
-                FileInputStream fileInputStream;
-                FileOutputStream fileOutputStream;
-                fileInputStream = new FileInputStream(tempFile);
-                BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
-                fileOutputStream = new FileOutputStream(targetFile);
-                BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
-                System.out.println("文件下载中......");
-                while (true) {
-                    int byteRead = bufferedInputStream.read(buffer);
-                    if (byteRead == -1)
-                        break;
-                    bufferedOutputStream.write(buffer, 0, byteRead);
-                }
-                bufferedInputStream.close();
-                bufferedOutputStream.close();
-                System.out.println("文件下载成功!");
-            } else {
-                System.out.println("未找到档案号为" + fileId + "的文件!");
-            }
-        } catch (SQLException e) {
-            System.out.println("数据库查找文件失败!");
-        } catch (FileNotFoundException e) {
-            System.out.println("文件不存在或路径名错误!");
-        } catch (IOException e) {
-            System.out.println("读写文件错误,文件下载失败!");
-        }
     }
 
     // 修改个人信息
     void changeSelfInfo() {
 
         //  TODO: 修改密码功能
-        System.out.println("--------修改(本人)密码--------");
-        System.out.println("请输入新口令：");
-        String password = in.next();
-        try {
-            if (DataProcessing.updateUser(name, password, role)) {
-                this.password = password;
-                System.out.println("修改密码成功!");
-            } else {
-                System.out.println("修改密码失败!");
-            }
-        } catch (SQLException e) {
-            System.out.println("修改密码失败!");
-        }
     }
 
     // 退出系统
     void exitSystem() {
 
         // TODO：退出系统功能
-        System.out.println("系统退出，谢谢使用!");
-        System.exit(0);
     }
 
 }
